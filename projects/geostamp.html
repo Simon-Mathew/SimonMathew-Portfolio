@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="GeoStamp — site-visit logger for Brothers Trading Company. Angular, Node/Express, MongoDB, Claude AI vision, SheetJS." />
+  <title>GeoStamp — Simon Mathew Cyriac</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <nav class="site-nav container" aria-label="Main navigation">
+      <a href="../index.html" class="site-nav__logo">Simon Mathew Cyriac</a>
+      <button class="site-nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="site-nav__links" id="nav-links" role="list">
+        <li><a href="../index.html#projects">Projects</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+        <li><a href="../assets/Simon_Mathew_Cyriac_Resume.pdf" target="_blank" rel="noopener">Resume ↗</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <div class="case-hero">
+      <div class="container">
+        <a href="../index.html#projects" class="case-hero__back">All projects</a>
+        <h1 class="case-hero__title">GeoStamp</h1>
+        <p class="case-hero__tagline">A site-visit logger for Brothers Trading Company — location captured automatically, an AI vision model reading data off photos, one-click Excel export.</p>
+        <dl class="case-meta">
+          <div class="case-meta__item"><dt><strong>Type</strong></dt><dd>Client project (BTC field staff)</dd></div>
+          <div class="case-meta__item"><dt><strong>Stack</strong></dt><dd>Angular · Node/Express · MongoDB · Claude AI · Cloudinary · SheetJS</dd></div>
+          <div class="case-meta__item"><dt><strong>Deployed</strong></dt><dd>Render (GitHub CI)</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="case-body">
+      <div class="container content-width">
+
+        <section aria-labelledby="problem-heading">
+          <h2 id="problem-heading">The problem</h2>
+          <p>Brothers Trading Company's field employees move between sites all day. They needed a fast, low-friction way to record each visit — location, timestamp, and any relevant details — without typing out coordinates by hand or relying on a spreadsheet that lives on someone's laptop.</p>
+          <p>Typing coordinates is slow and error-prone. Taking a photo of a location marker or signage is instant, but getting the structured data out of that photo used to require manual entry anyway. The app needed to close that gap.</p>
+        </section>
+
+        <section aria-labelledby="built-heading">
+          <h2 id="built-heading">How it's built</h2>
+
+          <p>Location capture works via two paths, both sitting behind a shared <code>ExtractionResult</code> TypeScript interface so the rest of the app doesn't care which path ran:</p>
+
+          <ul>
+            <li><strong>In-app capture</strong> — the browser Geolocation API fires at the moment the user captures a location. Photos taken through the browser don't embed GPS in EXIF, so the coordinate comes from the API call instead.</li>
+            <li><strong>Photo upload</strong> — reads embedded GPS and timestamp from EXIF metadata using <code>exifr</code>. When a photo has no metadata (common with older cameras or screenshots), it's sent to a Claude vision model (<code>claude-haiku-4-5</code>) which reads any on-image stamp — coordinates, address, timestamp — and returns it as structured JSON.</li>
+          </ul>
+
+          <p>A router with selectable modes controls which strategy runs: <code>auto</code> reaches for AI only when cheap metadata isn't available; <code>compare</code> runs both and shows them side by side so staff can cross-check. The modes are <code>auto</code>, <code>exif</code>, <code>vision</code>, and <code>compare</code>.</p>
+
+          <p>Recognised site data is written to MongoDB. Source images are stored in Cloudinary. Excel export lets staff and managers download their recorded sites as a clean <code>.xlsx</code> file generated from MongoDB via SheetJS.</p>
+        </section>
+
+        <section aria-labelledby="decisions-heading">
+          <h2 id="decisions-heading">Notable decisions</h2>
+
+          <div class="callout">
+            <p>The shared <code>ExtractionResult</code> interface is the core design move. Geolocation, EXIF, and the vision model are interchangeable outputs — the app doesn't branch on how data arrived, it just consumes the shape. A photo with no metadata degrades gracefully to AI extraction instead of failing.</p>
+          </div>
+
+          <p>Runtime AI calls are metered per token, so <code>auto</code> mode keeps cost low by calling the model only when it's genuinely needed — when EXIF returns nothing useful.</p>
+
+          <p>Excel sits on top of the database rather than being the system of record. MongoDB is the single source of truth. The spreadsheet is a read-only snapshot, regenerated on demand, so there's no sync problem between the two.</p>
+        </section>
+
+        <section aria-labelledby="links-heading">
+          <h2 id="links-heading">Links</h2>
+          <div class="case-links">
+            <a href="#" class="case-link" aria-label="Live demo (coming soon)">Live demo</a>
+            <a href="#" class="case-link" aria-label="Source code (coming soon)">GitHub repo</a>
+          </div>
+          <p style="margin-top: 1rem; font-size: 0.85rem; color: #555;">Demo URL and repo link to be added before publishing.</p>
+        </section>
+
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <p>simonmathewcyriac2@gmail.com</p>
+        <ul class="site-footer__links" role="list">
+          <li><a href="https://github.com/Simon-Mathew" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/simon-mathew-cyriac" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+        <p>© <span id="year"></span> Simon Mathew Cyriac</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

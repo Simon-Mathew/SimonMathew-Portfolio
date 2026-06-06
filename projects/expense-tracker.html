@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Expense Tracker 2.0 — Angular 20 personal finance app with Zone.js removed, signals-only reactivity, and SSR." />
+  <title>Expense Tracker 2.0 — Simon Mathew Cyriac</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <nav class="site-nav container" aria-label="Main navigation">
+      <a href="../index.html" class="site-nav__logo">Simon Mathew Cyriac</a>
+      <button class="site-nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="site-nav__links" id="nav-links" role="list">
+        <li><a href="../index.html#projects">Projects</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+        <li><a href="../assets/Simon_Mathew_Cyriac_Resume.pdf" target="_blank" rel="noopener">Resume ↗</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <div class="case-hero">
+      <div class="container">
+        <a href="../index.html#projects" class="case-hero__back">All projects</a>
+        <h1 class="case-hero__title">Expense Tracker 2.0</h1>
+        <p class="case-hero__tagline">A personal finance app running Angular 20 with Zone.js completely removed — all reactivity driven by signals and computed values.</p>
+        <dl class="case-meta">
+          <div class="case-meta__item"><dt><strong>Type</strong></dt><dd>Personal project</dd></div>
+          <div class="case-meta__item"><dt><strong>Stack</strong></dt><dd>Angular 20 · TypeScript · RxJS · Express 5 · MongoDB</dd></div>
+          <div class="case-meta__item"><dt><strong>Repo</strong></dt><dd><a href="https://github.com/Simon-Mathew/expense-tracker-2.0" target="_blank" rel="noopener">github.com/Simon-Mathew/expense-tracker-2.0 ↗</a></dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="case-body">
+      <div class="container content-width">
+
+        <section aria-labelledby="problem-heading">
+          <h2 id="problem-heading">The problem</h2>
+          <p>A personal finance dashboard needs to track expenses, budgets, and per-category spending — and it needs to stay fast as data grows. The interesting challenge here wasn't the feature set; it was the question of how much of Angular's runtime machinery the app actually needed.</p>
+        </section>
+
+        <section aria-labelledby="built-heading">
+          <h2 id="built-heading">How it's built</h2>
+
+          <p>The app runs <strong>zoneless Angular</strong> via <code>provideZonelessChangeDetection()</code>. Zone.js is gone entirely. State is driven by <code>signal()</code> and <code>computed()</code>, and components use <code>OnPush</code> change detection throughout. The runtime only re-renders what actually changed, not what might have changed.</p>
+
+          <p>The budget feature uses RxJS <code>forkJoin</code> to fire parallel HTTP requests — one per category — aggregate per-category spending against user-defined limits, and render animated progress cards when the responses arrive.</p>
+
+          <p>Angular SSR is wired in with <code>provideClientHydration(withEventReplay())</code>. Reusable components use content projection via named <code>ng-content</code> slots. Styling uses CSS design tokens rather than hardcoded values throughout.</p>
+
+          <p>The API is Express 5 with full CRUD, <code>PATCH</code> partial updates, and a Mongoose upsert pattern for budget limits that auto-seeds default categories on first run — no manual setup needed.</p>
+        </section>
+
+        <section aria-labelledby="decisions-heading">
+          <h2 id="decisions-heading">Notable decisions</h2>
+
+          <div class="callout">
+            <p>Going zoneless is the headline technical decision. It's a current, advanced Angular pattern that most junior developers haven't touched yet. Removing Zone.js forces a clean signal-based mental model — you can't rely on the runtime to detect side effects; you have to declare your reactive graph explicitly. That discipline shows up in how the components are structured.</p>
+          </div>
+
+          <p>Using <code>forkJoin</code> for the budget requests rather than sequential calls cuts the wait time proportionally to the number of categories. With seven default categories, that's seven requests in parallel instead of seven in a chain.</p>
+
+          <p>The MongoDB upsert for budget limits means the API is idempotent on first run. A <code>PUT</code> to set a budget either creates or updates — callers don't need to know whether a record exists, and the database stays clean.</p>
+        </section>
+
+        <section aria-labelledby="links-heading">
+          <h2 id="links-heading">Links</h2>
+          <div class="case-links">
+            <a href="https://github.com/Simon-Mathew/expense-tracker-2.0" target="_blank" rel="noopener" class="case-link">GitHub repo ↗</a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <p>simonmathewcyriac2@gmail.com</p>
+        <ul class="site-footer__links" role="list">
+          <li><a href="https://github.com/Simon-Mathew" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/simon-mathew-cyriac" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+        <p>© <span id="year"></span> Simon Mathew Cyriac</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

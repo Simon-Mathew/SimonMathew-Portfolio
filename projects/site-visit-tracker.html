@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Site Visit Tracker — field-visit logger with hand-rolled JWT auth, role-based access, and IDOR-aware queries. In progress." />
+  <title>Site Visit Tracker — Simon Mathew Cyriac</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <nav class="site-nav container" aria-label="Main navigation">
+      <a href="../index.html" class="site-nav__logo">Simon Mathew Cyriac</a>
+      <button class="site-nav__toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="site-nav__links" id="nav-links" role="list">
+        <li><a href="../index.html#projects">Projects</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+        <li><a href="../assets/Simon_Mathew_Cyriac_Resume.pdf" target="_blank" rel="noopener">Resume ↗</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <div class="case-hero">
+      <div class="container">
+        <a href="../index.html#projects" class="case-hero__back">All projects</a>
+        <div style="display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;">
+          <h1 class="case-hero__title">Site Visit Tracker</h1>
+          <span class="project-card__status">In progress</span>
+        </div>
+        <p class="case-hero__tagline">A field-visit logger with authentication and role-based access built from scratch — JWT, bcrypt, and IDOR-aware owner-scoped queries.</p>
+        <dl class="case-meta">
+          <div class="case-meta__item"><dt><strong>Type</strong></dt><dd>Personal project</dd></div>
+          <div class="case-meta__item"><dt><strong>Stack</strong></dt><dd>Angular · Node/Express · MongoDB · Cloudinary · JWT Auth</dd></div>
+          <div class="case-meta__item"><dt><strong>Status</strong></dt><dd>Active development</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="case-body">
+      <div class="container content-width">
+
+        <section aria-labelledby="context-heading">
+          <h2 id="context-heading">Why this project</h2>
+          <p>Most tutorials reach for Auth0, Clerk, or Supabase the moment authentication comes up. This project skips all of that — the goal was to build JWT authentication from scratch to understand what a managed service is actually doing underneath. The GeoStamp project (a related client build) gave me the domain model; this one is where I dug into the auth layer properly.</p>
+        </section>
+
+        <section aria-labelledby="built-heading">
+          <h2 id="built-heading">How it's built</h2>
+
+          <p>Location capture works via two paths — in-app camera capture using the browser Geolocation API, and photo upload with EXIF parsing via <code>exifr</code> and a Claude vision fallback for photos with no metadata.</p>
+
+          <p>Authentication is hand-rolled from first principles:</p>
+
+          <ul>
+            <li>A <code>User</code> model with bcrypt password hashing (bcryptjs, configurable salt rounds).</li>
+            <li>Signed JWTs issued on login, verified on every protected route via Express middleware.</li>
+            <li>A <code>requireRole</code> guard that reads the role from the verified JWT payload — no database lookup on each request.</li>
+            <li>Owner-scoped queries throughout: every data-fetching route filters on the authenticated user's ID, with deliberate IDOR awareness (no route returns another user's records unless the caller is a manager).</li>
+          </ul>
+
+          <p>Roles: a regular field user sees only their own visit records. A manager sees everyone's. The distinction is enforced at the query level, not just the UI level.</p>
+
+          <p>MongoDB is the single source of truth. Revisit reminders run on a daily cron. Excel export is generated on demand via SheetJS, same pattern as GeoStamp. Images are stored in Cloudinary.</p>
+        </section>
+
+        <section aria-labelledby="decisions-heading">
+          <h2 id="decisions-heading">Notable decisions</h2>
+
+          <div class="callout">
+            <p>Choosing not to use a managed auth service was the point. The bcrypt work, the JWT signing, the middleware, the IDOR thinking — these are the things that get abstracted away when you reach for Auth0. Building them manually meant genuinely understanding what "secure by default" requires at each layer.</p>
+          </div>
+
+          <p>Enforcing access at the query level rather than the route level is the right call even with role middleware in place. Middleware checks "can this user class access this route?" — that's necessary but not sufficient. The query needs to also check "is this record owned by this specific user?" Otherwise a logged-in regular user could request <code>/visits/someone-elses-id</code> and get a response.</p>
+        </section>
+
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="site-footer__inner">
+        <p>simonmathewcyriac2@gmail.com</p>
+        <ul class="site-footer__links" role="list">
+          <li><a href="https://github.com/Simon-Mathew" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/simon-mathew-cyriac" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+        <p>© <span id="year"></span> Simon Mathew Cyriac</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
